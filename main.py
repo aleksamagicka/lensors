@@ -1,5 +1,6 @@
 import os
 import sys
+from enum import Enum
 
 from PyQt6 import QtCore
 from PyQt6.QtWidgets import (
@@ -19,26 +20,87 @@ class HwmonSensors:
     HWMON_PATH = "/sys/class/hwmon"
 
     class HwmonDevice:
+        class HwmonSensor:
+            class Type(Enum):
+                Temp = 1
+                Voltage = 2
+                Fan = 3
+                Current = 4
+                Power = 5
+
+            def __init__(self, label, internal_name, value_path):
+                self.label = label
+
+                self._value_path = value_path
+
+                self._value = 0
+                self._min_value = sys.maxsize
+                self._max_value = -sys.maxsize - 1
+
+                # Determine type
+                if "temp" in internal_name:
+                    self._type = self.Type.Temp
+                elif "in" in internal_name:
+                    self._type = self.Type.Voltage
+                elif "fan" in internal_name:
+                    self._type = self.Type.Fan
+                elif "curr" in internal_name:
+                    self._type = self.Type.Current
+                elif "power" in internal_name:
+                    self._type = self.Type.Power
+
+            def value_to_string(self, value):
+                if self._type == self.Type.Temp:
+                    divide_by = 1000
+                    unit = "C"
+                elif self._type == self.Type.Voltage:
+                    divide_by = 1000
+                    unit = "V"
+                elif self._type == self.Type.Fan:
+                    divide_by = 1
+                    unit = "RPM"
+                elif self._type == self.Type.Current:
+                    divide_by = 1000
+                    unit = "A"
+                elif self._type == self.Type.Power:
+                    divide_by = 1000000
+                    unit = "W"
+
+                return f"{value / divide_by} {unit}"
+
+            def update_value(self):
+                with open(self._value_path) as f:
+                    self._value = int(f.readline().strip())
+                self._min_value = min(self._value, self._min_value)
+                self._max_value = max(self._value, self._max_value)
+
+            def get_tree_widget_item(self):
+                if self._value == 0:
+                    return None
+                return QTreeWidgetItem(
+                    [
+                        str(self.label),
+                        self.value_to_string(self._value),
+                        self.value_to_string(self._min_value),
+                        self.value_to_string(self._max_value),
+                    ]
+                )
+
         def __init__(self, name):
             self.name = name
-            self.readings = {}
-
-        def add_sensor(self, name, value):
-            if name not in self.readings:
-                self.readings[name] = value
+            self.sensors = list()
 
     def __init__(self):
         self.devices = list()
 
     def get_tree_widget(self):
         tree_widget = QTreeWidget()
-        tree_widget.setColumnCount(2)  # name, value
-        tree_widget.setHeaderLabels(["Name", "Value"])
+        tree_widget.setColumnCount(4)
+        tree_widget.setHeaderLabels(["Name", "Value", "Min", "Max"])
         for device in self.devices:
             device_item = QTreeWidgetItem([device.name, ""])
-            for name, value in device.readings.items():
-                device_sensor_item = QTreeWidgetItem([name, value])
-                device_item.addChild(device_sensor_item)
+            for sensor in device.sensors:
+                device_item.addChild(sensor.get_tree_widget_item())
             tree_widget.addTopLevelItem(device_item)
 
         return tree_widget
@@ -54,14 +116,25 @@ class HwmonSensors:
             h_device = HwmonSensors.HwmonDevice(device_name)
             self.devices.append(h_device)
 
-            # TODO: Icons, types. labels
+            # TODO: Icons
             for sensor in os.listdir(subdir_path):
+                sensor_parts = sensor.split("_")
+                sensor_label_path = os.path.join(subdir_path, sensor_parts[0], "_label")
+                sensor_label = sensor_parts[0]
+                if os.path.exists(sensor_label_path):
+                    with open(sensor_label_path) as f:
+                        sensor_label = f.readline().strip()
+
                 sensor_path = os.path.join(subdir_path, sensor)
                 if os.path.isfile(sensor_path):
                     if "_input" in sensor:
                         with open(sensor_path) as f:
                             try:
-                                h_device.add_sensor(sensor, f.readline().strip())
+                                h_sensor = HwmonSensors.HwmonDevice.HwmonSensor(
+                                    sensor_label, sensor_parts[0], sensor_path
+                                )
+                                h_sensor.update_value()
+                                h_device.sensors.append(h_sensor)
                             except OSError:
                                 pass  # TODO: Show error
 
