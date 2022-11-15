@@ -3,6 +3,7 @@ import sys
 from enum import Enum
 
 from PyQt6 import QtCore
+from PyQt6.QtCore import QTimer, QDateTime
 from PyQt6.QtWidgets import (
     QApplication,
     QWidget,
@@ -36,6 +37,15 @@ class HwmonSensors:
                 self._value = 0
                 self._min_value = sys.maxsize
                 self._max_value = -sys.maxsize - 1
+
+                self._tree_item = QTreeWidgetItem(
+                    [
+                        label,
+                        str(self._value),
+                        str(self._min_value),
+                        str(self._max_value),
+                    ]
+                )
 
                 # Determine type
                 if "temp" in internal_name:
@@ -74,17 +84,26 @@ class HwmonSensors:
                 self._min_value = min(self._value, self._min_value)
                 self._max_value = max(self._value, self._max_value)
 
+                self._tree_item.setData(
+                    1,
+                    QtCore.Qt.ItemDataRole.DisplayRole,
+                    self.value_to_string(self._value),
+                )
+                self._tree_item.setData(
+                    2,
+                    QtCore.Qt.ItemDataRole.DisplayRole,
+                    self.value_to_string(self._min_value),
+                )
+                self._tree_item.setData(
+                    3,
+                    QtCore.Qt.ItemDataRole.DisplayRole,
+                    self.value_to_string(self._max_value),
+                )
+
             def get_tree_widget_item(self):
                 if self._value == 0:
                     return None
-                return QTreeWidgetItem(
-                    [
-                        str(self.label),
-                        self.value_to_string(self._value),
-                        self.value_to_string(self._min_value),
-                        self.value_to_string(self._max_value),
-                    ]
-                )
+                return self._tree_item
 
         def __init__(self, name):
             self.name = name
@@ -98,7 +117,7 @@ class HwmonSensors:
         tree_widget.setColumnCount(4)
         tree_widget.setHeaderLabels(["Name", "Value", "Min", "Max"])
         for device in self.devices:
-            device_item = QTreeWidgetItem([device.name, ""])
+            device_item = QTreeWidgetItem([device.name])
             for sensor in device.sensors:
                 device_item.addChild(sensor.get_tree_widget_item())
             tree_widget.addTopLevelItem(device_item)
@@ -172,9 +191,9 @@ class App(QMainWindow):
     """
 
     def _refresh_sensors_widget(self):
-        hwmon = HwmonSensors()
-        hwmon.read()
-        self.sensors_tree = hwmon.get_tree_widget()
+        self.hwmon = HwmonSensors()
+        self.hwmon.read()
+        self.sensors_tree = self.hwmon.get_tree_widget()
         self.sensors_tree.setSortingEnabled(True)
         self.sensors_tree.expandAll()
         self.sensors_tree.header().setSectionResizeMode(
