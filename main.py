@@ -2,7 +2,7 @@ import os
 import sys
 from enum import Enum
 
-from PyQt6 import QtCore
+from PyQt6 import QtCore, QtGui
 from PyQt6.QtCore import QTimer, QDateTime
 from PyQt6.QtWidgets import (
     QApplication,
@@ -28,6 +28,7 @@ class HwmonSensors:
                 Fan = 3
                 Current = 4
                 Power = 5
+                Intrusion = 6
 
             def __init__(self, label, internal_name, value_path):
                 self.label = label
@@ -47,6 +48,7 @@ class HwmonSensors:
                     ]
                 )
 
+                self._type = None
                 # Determine type
                 if "temp" in internal_name:
                     self._type = self.Type.Temp
@@ -58,8 +60,30 @@ class HwmonSensors:
                     self._type = self.Type.Current
                 elif "power" in internal_name:
                     self._type = self.Type.Power
+                elif "intrusion" in internal_name:
+                    self._type = self.Type.Intrusion
+
+                # Set icon
+                feat_icon = None
+                if self._type == self.Type.Temp:
+                    feat_icon = 'icons8-thermometer-96.png'
+                elif self._type == self.Type.Current:
+                    feat_icon = 'icons8-high-voltage-96.png'
+                elif self._type == self.Type.Voltage:
+                    feat_icon = 'icons8-voltmeter-100.png'
+                elif self._type == self.Type.Power:
+                    feat_icon = 'icons8-shutdown-90.png'
+                elif self._type == self.Type.Fan:
+                    feat_icon = 'icons8-fan-head-64.png'
+                elif self._type == self.Type.Intrusion:
+                    feat_icon = 'icons8-hips-100.png'
+
+                self._tree_item.setIcon(0, QtGui.QIcon(f"icons:{feat_icon}"))
 
             def value_to_string(self, value):
+                if not type(value) == int:
+                    return value
+
                 if self._type == self.Type.Temp:
                     divide_by = 1000
                     unit = "C"
@@ -75,14 +99,22 @@ class HwmonSensors:
                 elif self._type == self.Type.Power:
                     divide_by = 1000000
                     unit = "W"
+                else:
+                    divide_by = 1
+                    unit = ""
 
                 return f"{value / divide_by} {unit}"
 
             def update_value(self):
                 with open(self._value_path) as f:
-                    self._value = int(f.readline().strip())
-                self._min_value = min(self._value, self._min_value)
-                self._max_value = max(self._value, self._max_value)
+                    self._value = f.readline().strip()
+                    if self._value.isdecimal():
+                        self._value = int(self._value)
+                        self._min_value = min(self._value, self._min_value)
+                        self._max_value = max(self._value, self._max_value)
+                    else:
+                        self._min_value = "N/A"
+                        self._max_value = "N/A"
 
                 self._tree_item.setData(
                     1,
