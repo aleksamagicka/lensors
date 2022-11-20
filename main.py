@@ -3,7 +3,6 @@ import sys
 from enum import Enum
 
 from PyQt6 import QtCore, QtGui
-from PyQt6.QtCore import QTimer, QDateTime
 from PyQt6.QtWidgets import (
     QApplication,
     QWidget,
@@ -66,17 +65,17 @@ class HwmonSensors:
                 # Set icon
                 feat_icon = None
                 if self._type == self.Type.Temp:
-                    feat_icon = 'icons8-thermometer-96.png'
+                    feat_icon = "icons8-thermometer-96.png"
                 elif self._type == self.Type.Current:
-                    feat_icon = 'icons8-high-voltage-96.png'
+                    feat_icon = "icons8-high-voltage-96.png"
                 elif self._type == self.Type.Voltage:
-                    feat_icon = 'icons8-voltmeter-100.png'
+                    feat_icon = "icons8-voltmeter-100.png"
                 elif self._type == self.Type.Power:
-                    feat_icon = 'icons8-shutdown-90.png'
+                    feat_icon = "icons8-shutdown-90.png"
                 elif self._type == self.Type.Fan:
-                    feat_icon = 'icons8-fan-head-64.png'
+                    feat_icon = "icons8-fan-head-64.png"
                 elif self._type == self.Type.Intrusion:
-                    feat_icon = 'icons8-hips-100.png'
+                    feat_icon = "icons8-hips-100.png"
 
                 self._tree_item.setIcon(0, QtGui.QIcon(f"icons:{feat_icon}"))
 
@@ -144,6 +143,11 @@ class HwmonSensors:
     def __init__(self):
         self.devices = list()
 
+    def update_sensors(self):
+        for device in self.devices:
+            for sensor in device.sensors:
+                sensor.update_value()
+
     def get_tree_widget(self):
         tree_widget = QTreeWidget()
         tree_widget.setColumnCount(4)
@@ -200,6 +204,7 @@ class App(QMainWindow):
         self.width = 640
         self.height = 480 * 2
         self.sensors_tree = None
+        self.hwmon = None
 
         QtCore.QDir.addSearchPath("icons", "resources/icons/")
 
@@ -222,9 +227,11 @@ class App(QMainWindow):
     - All values/simple view (sensors)
     """
 
-    def _refresh_sensors_widget(self):
-        self.hwmon = HwmonSensors()
-        self.hwmon.read()
+    def init_sensors_tab(self):
+        if self.hwmon is None:
+            self.hwmon = HwmonSensors()
+            self.hwmon.read()
+
         self.sensors_tree = self.hwmon.get_tree_widget()
         self.sensors_tree.setSortingEnabled(True)
         self.sensors_tree.expandAll()
@@ -233,13 +240,11 @@ class App(QMainWindow):
         )
         self.sensors_tree.header().setStretchLastSection(False)
 
-        if self.tabs_init is False:
-            sensors_layout = QVBoxLayout()
-            sensors_layout.addWidget(self.sensors_tree)
-            self.sensors_widget = QWidget()
-            self.sensors_widget.setLayout(sensors_layout)
-            self.tab_widget.addTab(self.sensors_widget, "Sensors")
-            self.tabs_init = True
+        sensors_layout = QVBoxLayout()
+        sensors_layout.addWidget(self.sensors_tree)
+        self.sensors_widget = QWidget()
+        self.sensors_widget.setLayout(sensors_layout)
+        self.tab_widget.addTab(self.sensors_widget, "Sensors")
 
     def _init_menubar(self):
         tools_menu = self.menuBar().addMenu("Tools")
@@ -259,8 +264,7 @@ class App(QMainWindow):
         self._init_menubar()
 
         self.tab_widget = QTabWidget()
-        self.tabs_init = False
-        self._refresh_sensors_widget()
+        self.init_sensors_tab()
 
         self.setCentralWidget(self.tab_widget)
 
@@ -268,7 +272,7 @@ class App(QMainWindow):
         self._center_window()
 
     def on_refresh_button_click(self):
-        self._refresh_sensors_widget()
+        self.hwmon.update_sensors()
 
     def on_help_button_click(self):
         pass
