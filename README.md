@@ -14,6 +14,7 @@ It's currently under development, but basic features that should work are:
 - Assigning an icon to the reading for visual aid
 - Tracking min and max values of a sensor
 - Showing the unit value of a sensor
+- Updating data every second
 
 Ideas for the future:
 

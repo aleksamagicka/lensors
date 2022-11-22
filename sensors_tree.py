@@ -3,12 +3,16 @@ from abc import abstractmethod, ABC
 from enum import Enum
 
 from PyQt6 import QtGui
+from PyQt6.QtCore import QTimer
 from PyQt6.QtWidgets import QTreeWidgetItem, QTreeWidget
 
 
 class SensorsTree(ABC):
     def __init__(self):
         self.devices = list()
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_sensors)
+        self.timer.start(1000) # TODO: Make optional and configurable
 
     def update_sensors(self):
         for device in self.devices:
