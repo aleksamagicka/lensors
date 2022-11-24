@@ -2,7 +2,7 @@
 
 _A Hwmonitor/Hwinfo64-like GUI for showing sensor data from HWMON on Linux._
 
-![](https://i.imgur.com/ZZKRvWZ.png)
+![Lensors in action](https://i.imgur.com/5TAjj8n.png)
 
 ## Overview
 
