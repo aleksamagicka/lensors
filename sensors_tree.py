@@ -12,7 +12,7 @@ class SensorsTree(ABC):
         self.devices = list()
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_sensors)
-        self.timer.start(1000) # TODO: Make optional and configurable
+        self.timer.start(1000)  # TODO: Make optional and configurable
 
     def update_sensors(self):
         for device in self.devices:
@@ -76,30 +76,26 @@ class Sensor(ABC):
 
     @property
     @abstractmethod
-    def type(self):
+    def get_type(self):
         raise NotImplementedError
 
     @abstractmethod
     def get_icon(self):
         feat_icon = None
-        if self.type() == self.Type.Temp:
+        if self.get_type() == self.Type.Temp:
             feat_icon = "icons8-thermometer-96.png"
-        elif self.type() == self.Type.Current:
+        elif self.get_type() == self.Type.Current:
             feat_icon = "icons8-high-voltage-96.png"
-        elif self.type() == self.Type.Voltage:
+        elif self.get_type() == self.Type.Voltage:
             feat_icon = "icons8-voltmeter-100.png"
-        elif self.type() == self.Type.Power:
+        elif self.get_type() == self.Type.Power:
             feat_icon = "icons8-shutdown-90.png"
-        elif self.type() == self.Type.Fan:
+        elif self.get_type() == self.Type.Fan:
             feat_icon = "icons8-fan-head-64.png"
-        elif self.type() == self.Type.Intrusion:
+        elif self.get_type() == self.Type.Intrusion:
             feat_icon = "icons8-hips-100.png"
 
         return feat_icon
-
-    @abstractmethod
-    def __str__(self):
-        raise NotImplementedError
 
     @abstractmethod
     def get_tree_widget_item(self):

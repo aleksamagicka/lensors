@@ -33,20 +33,20 @@ class HwmonSensors(SensorsTree):
                 self._tree_item.setData(
                     1,
                     QtCore.Qt.ItemDataRole.DisplayRole,
-                    str(self._value),
+                    self.value_to_str(self._value),
                 )
                 self._tree_item.setData(
                     2,
                     QtCore.Qt.ItemDataRole.DisplayRole,
-                    str(self._min_value),
+                    self.value_to_str(self._min_value),
                 )
                 self._tree_item.setData(
                     3,
                     QtCore.Qt.ItemDataRole.DisplayRole,
-                    str(self._max_value),
+                    self.value_to_str(self._max_value),
                 )
 
-            def type(self):
+            def get_type(self):
                 internal_name = self._internal_data["fs_name"]
 
                 if "temp" in internal_name:
@@ -70,30 +70,30 @@ class HwmonSensors(SensorsTree):
                     return None
                 return super().get_tree_widget_item()
 
-            def __str__(self):
-                if not type(self._value) == int:
-                    return self._value
+            def value_to_str(self, value):
+                if not type(value) == int:
+                    return "N/A"
 
-                if self.type == self.Type.Temp:
+                if self.get_type() == self.Type.Temp:
                     divide_by = 1000
                     unit = "C"
-                elif self.type == self.Type.Voltage:
+                elif self.get_type() == self.Type.Voltage:
                     divide_by = 1000
                     unit = "V"
-                elif self.type == self.Type.Fan:
+                elif self.get_type() == self.Type.Fan:
                     divide_by = 1
                     unit = "RPM"
-                elif self.type == self.Type.Current:
+                elif self.get_type() == self.Type.Current:
                     divide_by = 1000
                     unit = "A"
-                elif self.type == self.Type.Power:
+                elif self.get_type() == self.Type.Power:
                     divide_by = 1000000
                     unit = "W"
                 else:
                     divide_by = 1
                     unit = ""
 
-                return f"{self._value / divide_by} {unit}"
+                return f"{value / divide_by} {unit}"
 
     def read(self):
         hwmon_dirs = os.listdir(self.HWMON_PATH)
