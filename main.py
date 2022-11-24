@@ -12,6 +12,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QAction
 
 from hwmon import HwmonSensors
+from liquidctl_tree import LiquidctlSensors
 
 
 class App(QMainWindow):
@@ -25,6 +26,8 @@ class App(QMainWindow):
         self.height = 480 * 2
         self.sensors_tree = None
         self.hwmon = None
+        self.liquidctl = None
+        self.liquidctl_tree = None
 
         QtCore.QDir.addSearchPath("icons", "resources/icons/")
 
@@ -52,6 +55,10 @@ class App(QMainWindow):
             self.hwmon = HwmonSensors()
             self.hwmon.read()
 
+        if self.liquidctl is None:
+            self.liquidctl = LiquidctlSensors()
+            self.liquidctl.read()
+
         self.sensors_tree = self.hwmon.get_tree_widget()
         self.sensors_tree.setSortingEnabled(True)
         self.sensors_tree.expandAll()
@@ -60,11 +67,25 @@ class App(QMainWindow):
         )
         self.sensors_tree.header().setStretchLastSection(False)
 
+        self.liquidctl_tree = self.liquidctl.get_tree_widget()
+        self.liquidctl_tree.setSortingEnabled(True)
+        self.liquidctl_tree.expandAll()
+        self.liquidctl_tree.header().setSectionResizeMode(
+            QHeaderView.ResizeMode.ResizeToContents
+        )
+        self.liquidctl_tree.header().setStretchLastSection(False)
+
         sensors_layout = QVBoxLayout()
         sensors_layout.addWidget(self.sensors_tree)
         self.sensors_widget = QWidget()
         self.sensors_widget.setLayout(sensors_layout)
         self.tab_widget.addTab(self.sensors_widget, "Sensors")
+
+        liquidctl_layout = QVBoxLayout()
+        liquidctl_layout.addWidget(self.liquidctl_tree)
+        self.liquidctl_widget = QWidget()
+        self.liquidctl_widget.setLayout(liquidctl_layout)
+        self.tab_widget.addTab(self.liquidctl_widget, "Liquidctl")
 
     def _init_menubar(self):
         tools_menu = self.menuBar().addMenu("Tools")

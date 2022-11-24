@@ -1,2 +1,3 @@
 PyQt6
 black
+git+https://github.com/liquidctl/liquidctl@main#egg=liquidctl

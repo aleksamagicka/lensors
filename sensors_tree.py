@@ -16,8 +16,7 @@ class SensorsTree(ABC):
 
     def update_sensors(self):
         for device in self.devices:
-            for sensor in device.sensors:
-                sensor.update_value()
+            device.update_sensors()
 
     def get_tree_widget(self):
         tree_widget = QTreeWidget()
@@ -40,6 +39,10 @@ class Device(ABC):
     def __init__(self, name):
         self.name = name
         self.sensors = list()
+
+    @abstractmethod
+    def update_sensors(self):
+        raise NotImplementedError()
 
 
 class Sensor(ABC):
@@ -69,10 +72,6 @@ class Sensor(ABC):
         )
 
         self._tree_item.setIcon(0, QtGui.QIcon(f"icons:{self.get_icon()}"))
-
-    @abstractmethod
-    def update_value(self):
-        raise NotImplementedError
 
     @property
     @abstractmethod

@@ -15,6 +15,10 @@ class HwmonSensors(SensorsTree):
         def __init__(self, name):
             super().__init__(name)
 
+        def update_sensors(self):
+            for sensor in self.sensors:
+                sensor.update_value()
+
         class HwmonSensor(Sensor):
             def __init__(self, label, internal_data):
                 super().__init__(label, internal_data)
