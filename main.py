@@ -1,6 +1,7 @@
 import sys
 
-from PyQt6 import QtCore
+from PyQt6 import QtCore, QtGui
+from PyQt6.QtCore import QTimer, QEventLoop, QObject, QThread
 from PyQt6.QtWidgets import (
     QApplication,
     QWidget,
@@ -11,9 +12,31 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QAction
 
-from hwmon import HwmonSensors
-from liquidctl_tree import LiquidctlSensors
+from hwmon_source import HwmonSensors
+from liquidctl_source import LiquidctlSensors
 
+class PollSourcesWorker(QObject):
+    def update_sensors(self):
+        self.hwmon_source.update_sensors()
+        self.liquidctl_source.update_sensors()
+
+    def __init__(self, hwmon_source, liquidctl_source, parent=None):
+        super().__init__(parent)
+        self.polling_timer = None
+
+        self.hwmon_source = hwmon_source
+        self.liquidctl_source = liquidctl_source
+
+        self.polling_timer = QTimer()
+        self.polling_timer.timeout.connect(self.update_sensors)
+
+    def run(self):
+        # TODO: Make interval configurable
+        self.polling_timer.start(1000)
+
+    def moveToThread(self, thread):
+        thread.finished.connect(self.polling_timer.stop)
+        super().moveToThread(thread)
 
 class App(QMainWindow):
     def __init__(self):
@@ -112,8 +135,21 @@ class App(QMainWindow):
         self.show()
         self._center_window()
 
+        # Start polling sensor sources
+        self.worker = PollSourcesWorker(self.hwmon, self.liquidctl)
+        self.polling_thread = QThread(self)
+        self.worker.moveToThread(self.polling_thread)
+        self.polling_thread.start()
+
+        self.worker.run()
+
+    def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
+        self.polling_thread.quit()
+
     def on_refresh_button_click(self):
+        # TODO
         self.hwmon.update_sensors()
+        self.liquidctl.update_sensors()
 
     def on_help_button_click(self):
         pass
