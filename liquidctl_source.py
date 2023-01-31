@@ -79,8 +79,6 @@ class LiquidctlSensors(SensorsTree):
                 return super().get_icon()
 
             def get_tree_widget_item(self):
-                if self._value == 0:
-                    return None
                 return super().get_tree_widget_item()
 
             def value_to_str(self, value):
