@@ -58,23 +58,18 @@ class LiquidctlSensors(SensorsTree):
                 )
 
             def get_type(self):
-                return self.Type.Temp
-
-                internal_name = self._internal_data["fs_name"]
+                internal_name = self.label
 
                 if "temp" in internal_name:
                     return self.Type.Temp
-                elif "in" in internal_name:
+                elif "voltage" in internal_name:
                     return self.Type.Voltage
-                elif "fan" in internal_name:
+                elif "speed" in internal_name or "duty" in internal_name:
                     return self.Type.Fan
-                elif "curr" in internal_name:
+                elif "current" in internal_name:
                     return self.Type.Current
                 elif "power" in internal_name:
                     return self.Type.Power
-                elif "intrusion" in internal_name:
-                    return self.Type.Intrusion
-
             def get_icon(self):
                 return super().get_icon()
 
