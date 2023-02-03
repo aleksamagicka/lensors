@@ -1,4 +1,5 @@
 import os
+from functools import cached_property
 
 from PyQt6 import QtCore
 
@@ -50,7 +51,8 @@ class HwmonSensors(SensorsTree):
                     self.value_to_str(self._max_value),
                 )
 
-            def get_type(self):
+            @cached_property
+            def type(self):
                 internal_name = self._internal_data["fs_name"].split('_input')[0]
 
                 if "temp" in internal_name:
@@ -58,6 +60,8 @@ class HwmonSensors(SensorsTree):
                 elif "in" in internal_name:
                     return self.Type.Voltage
                 elif "fan" in internal_name:
+                    if "flow" in self._internal_data["label"].lower():
+                        return self.Type.Flow
                     return self.Type.Fan
                 elif "curr" in internal_name:
                     return self.Type.Current
@@ -78,19 +82,19 @@ class HwmonSensors(SensorsTree):
                 if not type(value) == int:
                     return "N/A"
 
-                if self.get_type() == self.Type.Temp:
+                if self.type == self.Type.Temp:
                     divide_by = 1000
                     unit = "C"
-                elif self.get_type() == self.Type.Voltage:
+                elif self.type == self.Type.Voltage:
                     divide_by = 1000
                     unit = "V"
-                elif self.get_type() == self.Type.Fan:
+                elif self.type == self.Type.Fan:
                     divide_by = 1
                     unit = "RPM"
-                elif self.get_type() == self.Type.Current:
+                elif self.type == self.Type.Current:
                     divide_by = 1000
                     unit = "A"
-                elif self.get_type() == self.Type.Power:
+                elif self.type == self.Type.Power:
                     divide_by = 1000000
                     unit = "W"
                 else:

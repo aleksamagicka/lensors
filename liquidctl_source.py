@@ -1,3 +1,5 @@
+from functools import cached_property
+
 from liquidctl import find_liquidctl_devices
 
 from PyQt6 import QtCore
@@ -57,8 +59,9 @@ class LiquidctlSensors(SensorsTree):
                     self.value_to_str(self._max_value),
                 )
 
-            def get_type(self):
-                internal_name = self.label
+            @cached_property
+            def type(self):
+                internal_name = self.label.lower()
 
                 if "temp" in internal_name:
                     return self.Type.Temp
@@ -70,6 +73,9 @@ class LiquidctlSensors(SensorsTree):
                     return self.Type.Current
                 elif "power" in internal_name:
                     return self.Type.Power
+                elif "flow" in internal_name:
+                    return self.Type.Flow
+
             def get_icon(self):
                 return super().get_icon()
 

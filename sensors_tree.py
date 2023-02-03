@@ -51,6 +51,7 @@ class Sensor(ABC):
         Current = 4
         Power = 5
         Intrusion = 6
+        Flow = 7
 
     def __init__(self, label, internal_data):
         self.label = label
@@ -72,24 +73,26 @@ class Sensor(ABC):
         self._tree_item.setIcon(0, QtGui.QIcon(f"icons:{self.get_icon()}"))
 
     @abstractmethod
-    def get_type(self):
+    def type(self):
         raise NotImplementedError
 
     @abstractmethod
     def get_icon(self):
         feat_icon = None
-        if self.get_type() == self.Type.Temp:
+        if self.type == self.Type.Temp:
             feat_icon = "icons8-thermometer-96.png"
-        elif self.get_type() == self.Type.Current:
+        elif self.type == self.Type.Current:
             feat_icon = "icons8-high-voltage-96.png"
-        elif self.get_type() == self.Type.Voltage:
+        elif self.type == self.Type.Voltage:
             feat_icon = "icons8-voltmeter-100.png"
-        elif self.get_type() == self.Type.Power:
+        elif self.type == self.Type.Power:
             feat_icon = "icons8-shutdown-90.png"
-        elif self.get_type() == self.Type.Fan:
+        elif self.type == self.Type.Fan:
             feat_icon = "icons8-fan-head-64.png"
-        elif self.get_type() == self.Type.Intrusion:
+        elif self.type == self.Type.Intrusion:
             feat_icon = "icons8-hips-100.png"
+        elif self.type == self.Type.Flow:
+            feat_icon = "icons8-process-90.png"
 
         return feat_icon
 
