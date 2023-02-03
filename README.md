@@ -1,8 +1,8 @@
 # Lensors
 
-_A Hwmonitor/Hwinfo64-like GUI for showing sensor data from HWMON on Linux._
+_A Hwmonitor/Hwinfo64-like GUI for showing sensor data from HWMON and liquidctl on Linux._
 
-![Lensors in action](https://i.imgur.com/5TAjj8n.png)
+![Lensors in action](https://i.imgur.com/Tmzr3Zr.png)
 
 ## Overview
 
@@ -15,8 +15,8 @@ It's currently under development, but basic features that should work are:
 - Tracking min and max values of a sensor
 - Showing the unit value of a sensor
 - Updating data every second
+- Reading sensors from liquidctl
 
 Ideas for the future:
 
 - A menu with options for finer customization of presented data
-- Liquidctl support
