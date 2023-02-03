@@ -1,6 +1,7 @@
 import sys
 from abc import abstractmethod, ABC
 from enum import Enum
+from functools import cached_property
 
 from PyQt6 import QtGui
 from PyQt6.QtWidgets import QTreeWidgetItem, QTreeWidget
@@ -70,14 +71,14 @@ class Sensor(ABC):
             ]
         )
 
-        self._tree_item.setIcon(0, QtGui.QIcon(f"icons:{self.get_icon()}"))
+        self._tree_item.setIcon(0, QtGui.QIcon(f"icons:{self.icon}"))
 
     @abstractmethod
     def type(self):
         raise NotImplementedError
 
-    @abstractmethod
-    def get_icon(self):
+    @cached_property
+    def icon(self):
         feat_icon = None
         if self.type == self.Type.Temp:
             feat_icon = "icons8-thermometer-96.png"

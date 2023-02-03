@@ -70,9 +70,6 @@ class HwmonSensors(SensorsTree):
                 elif "intrusion" in internal_name:
                     return self.Type.Intrusion
 
-            def get_icon(self):
-                return super().get_icon()
-
             def get_tree_widget_item(self):
                 if self._value == 0:
                     return None

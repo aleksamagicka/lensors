@@ -76,9 +76,6 @@ class LiquidctlSensors(SensorsTree):
                 elif "flow" in internal_name:
                     return self.Type.Flow
 
-            def get_icon(self):
-                return super().get_icon()
-
             def get_tree_widget_item(self):
                 return super().get_tree_widget_item()
 
