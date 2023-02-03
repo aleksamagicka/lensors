@@ -22,7 +22,9 @@ class SensorsTree(ABC):
             device_item = QTreeWidgetItem([device.name])
             for sensor in device.sensors:
                 device_item.addChild(sensor.get_tree_widget_item())
-            tree_widget.addTopLevelItem(device_item)
+            # Don't show empty devices
+            if device_item.childCount() != 0:
+                tree_widget.addTopLevelItem(device_item)
 
         return tree_widget
 
