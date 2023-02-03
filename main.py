@@ -1,7 +1,7 @@
 import sys
 
 from PyQt6 import QtCore, QtGui
-from PyQt6.QtCore import QTimer, QEventLoop, QObject, QThread
+from PyQt6.QtCore import QTimer, QObject, QThread, pyqtSignal, pyqtSlot
 from PyQt6.QtWidgets import (
     QApplication,
     QWidget,
@@ -16,27 +16,28 @@ from hwmon_source import HwmonSensors
 from liquidctl_source import LiquidctlSensors
 
 class PollSourcesWorker(QObject):
+    stopping = pyqtSignal()
+
+    def __init__(self, hwmon_source, liquidctl_source):
+        super().__init__()
+
+        self.polling_timer = None
+        self.hwmon_source = hwmon_source
+        self.liquidctl_source = liquidctl_source
+        self.stopping.connect(self.stop)
+
+    def start(self):
+        self.polling_timer = QTimer()
+        self.polling_timer.timeout.connect(self.update_sensors)
+        self.polling_timer.start(1000) # TODO: Make interval configurable
+
+    @pyqtSlot()
+    def stop(self):
+        self.polling_timer.stop()
+
     def update_sensors(self):
         self.hwmon_source.update_sensors()
         self.liquidctl_source.update_sensors()
-
-    def __init__(self, hwmon_source, liquidctl_source, parent=None):
-        super().__init__(parent)
-        self.polling_timer = None
-
-        self.hwmon_source = hwmon_source
-        self.liquidctl_source = liquidctl_source
-
-        self.polling_timer = QTimer()
-        self.polling_timer.timeout.connect(self.update_sensors)
-
-    def run(self):
-        # TODO: Make interval configurable
-        self.polling_timer.start(1000)
-
-    def moveToThread(self, thread):
-        thread.finished.connect(self.polling_timer.stop)
-        super().moveToThread(thread)
 
 class App(QMainWindow):
     def __init__(self):
@@ -63,15 +64,6 @@ class App(QMainWindow):
         center_loc = screen.geometry().center()
         frame_geo.moveCenter(center_loc)
         self.move(frame_geo.topLeft())
-
-    """
-    TODO: Opcije
-    - Show empty entries
-    - Retrieve feature labels
-    - Sort by default?
-    - Show PWM values?
-    - All values/simple view (sensors)
-    """
 
     def init_sensors_tab(self):
         if self.hwmon is None:
@@ -136,15 +128,17 @@ class App(QMainWindow):
         self._center_window()
 
         # Start polling sensor sources
-        self.worker = PollSourcesWorker(self.hwmon, self.liquidctl)
-        self.polling_thread = QThread(self)
-        self.worker.moveToThread(self.polling_thread)
-        self.polling_thread.start()
+        self.poll_worker_thread = QThread()
+        self.poll_worker = PollSourcesWorker(self.hwmon, self.liquidctl)
+        self.poll_worker.moveToThread(self.poll_worker_thread)
 
-        self.worker.run()
+        self.poll_worker_thread.started.connect(self.poll_worker.start)
+        self.poll_worker_thread.start()
 
-    def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
-        self.polling_thread.quit()
+    def closeEvent(self, a0: QtGui.QCloseEvent):
+        self.poll_worker.stopping.emit()
+        self.poll_worker_thread.quit()
+        self.poll_worker_thread.wait()
 
     def on_refresh_button_click(self):
         # TODO
