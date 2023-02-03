@@ -51,7 +51,7 @@ class HwmonSensors(SensorsTree):
                 )
 
             def get_type(self):
-                internal_name = self._internal_data["fs_name"]
+                internal_name = self._internal_data["fs_name"].split('_input')[0]
 
                 if "temp" in internal_name:
                     return self.Type.Temp
