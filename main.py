@@ -26,6 +26,7 @@ class PollSourcesWorker(QObject):
         self.liquidctl_source = liquidctl_source
         self.stopping.connect(self.stop)
 
+    @pyqtSlot()
     def start(self):
         self.polling_timer = QTimer()
         self.polling_timer.timeout.connect(self.update_sensors)
@@ -136,6 +137,7 @@ class App(QMainWindow):
         self.poll_worker_thread.start()
 
     def closeEvent(self, a0: QtGui.QCloseEvent):
+        # TODO: Sometimes gives an error
         self.poll_worker.stopping.emit()
         self.poll_worker_thread.quit()
         self.poll_worker_thread.wait()
