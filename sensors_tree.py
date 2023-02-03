@@ -71,7 +71,6 @@ class Sensor(ABC):
 
         self._tree_item.setIcon(0, QtGui.QIcon(f"icons:{self.get_icon()}"))
 
-    @property
     @abstractmethod
     def get_type(self):
         raise NotImplementedError
