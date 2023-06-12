@@ -55,7 +55,7 @@ class Sensor(ABC):
         Flow = 7
 
     def __init__(self, label, internal_data):
-        self.label = label
+        self.label = label.strip()
         self._internal_data = internal_data
 
         self._value = 0
@@ -64,7 +64,7 @@ class Sensor(ABC):
 
         self._tree_item = QTreeWidgetItem(
             [
-                label,
+                self.label,
                 str(self._value),
                 str(self._min_value),
                 str(self._max_value),
