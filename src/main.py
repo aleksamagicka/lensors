@@ -12,7 +12,7 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QAction
 
-from hwmon_source import HwmonSensors
+from src.hwmon_source import HwmonSensors
 from liquidctl_source import LiquidctlSensors
 
 class PollSourcesWorker(QObject):
@@ -54,7 +54,7 @@ class App(QMainWindow):
         self.liquidctl = None
         self.liquidctl_tree = None
 
-        QtCore.QDir.addSearchPath("icons", "resources/icons/")
+        QtCore.QDir.addSearchPath("icons", "../resources/icons/")
 
         self._init_ui()
 
