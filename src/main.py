@@ -1,4 +1,5 @@
 import sys
+from datetime import datetime
 
 from PyQt6 import QtCore, QtGui, uic
 from PyQt6.QtCore import QTimer, QObject, QThread, pyqtSignal, pyqtSlot
@@ -8,6 +9,7 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QMainWindow,
     QHeaderView,
+    QLabel,
 )
 from PyQt6.QtGui import QAction
 
@@ -67,6 +69,9 @@ class App(QMainWindow):
         frame_geo.moveCenter(center_loc)
         self.move(frame_geo.topLeft())
 
+    def show_permanent_status_message(self, text):
+        self.status_label.setText(f"[{datetime.now().strftime('%H:%M:%S')}] {text}")
+
     def init_sensors_tab(self):
         if self.hwmon is None:
             self.hwmon = HwmonSensors()
@@ -124,6 +129,10 @@ class App(QMainWindow):
         # Qt Designer apparently does not do this for us
         self.centralWidget().setContentsMargins(9, 6, 9, 6)
 
+        # Add permanent QLabel to status bar
+        self.status_label = QLabel()
+        self.statusBar().addPermanentWidget(self.status_label)
+
         self.show()
         self._center_window()
 
@@ -134,6 +143,8 @@ class App(QMainWindow):
 
         self.poll_worker_thread.started.connect(self.poll_worker.start)
         self.poll_worker_thread.start()
+
+        self.show_permanent_status_message("Started monitoring.")
 
     def closeEvent(self, a0: QtGui.QCloseEvent):
         # TODO: Sometimes gives an error
