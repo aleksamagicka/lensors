@@ -1,6 +1,6 @@
 import sys
 
-from PyQt6 import QtCore, QtGui
+from PyQt6 import QtCore, QtGui, uic
 from PyQt6.QtCore import QTimer, QObject, QThread, pyqtSignal, pyqtSlot
 from PyQt6.QtWidgets import (
     QApplication,
@@ -54,7 +54,7 @@ class App(QMainWindow):
         self.liquidctl = None
         self.liquidctl_tree = None
 
-        QtCore.QDir.addSearchPath("icons", "../resources/icons/")
+        QtCore.QDir.addSearchPath("icons", "resources/icons/")
 
         self._init_ui()
 
@@ -115,15 +115,10 @@ class App(QMainWindow):
         help_menu.addAction(about_action)
 
     def _init_ui(self):
+        uic.loadUi('src/ui/mainwindow.ui', self)
+
         self.setWindowTitle(self.title)
-        self.setGeometry(self.left, self.top, self.width, self.height)
-
-        self._init_menubar()
-
-        self.tab_widget = QTabWidget()
         self.init_sensors_tab()
-
-        self.setCentralWidget(self.tab_widget)
 
         self.show()
         self._center_window()
