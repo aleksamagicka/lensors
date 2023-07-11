@@ -44,11 +44,11 @@
      <addaction name="actionhwmon"/>
      <addaction name="actionliquidctl"/>
      <addaction name="actionhwmon_liquidctl"/>
-     <addaction name="actionFrom_scratch"/>
     </widget>
     <addaction name="actionOptions"/>
     <addaction name="separator"/>
     <addaction name="menuRefresh"/>
+    <addaction name="actionRebuild_hwmon_tree"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -111,6 +111,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actionRebuild_hwmon_tree">
+   <property name="text">
+    <string>Rebuild hwmon tree</string>
    </property>
   </action>
  </widget>
