@@ -121,6 +121,9 @@ class App(QMainWindow):
         self.setWindowTitle(self.title)
         self.init_sensors_tab()
 
+        # Qt Designer apparently does not do this for us
+        self.centralWidget().setContentsMargins(9, 6, 9, 6)
+
         self.show()
         self._center_window()
 
