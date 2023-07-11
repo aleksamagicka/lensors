@@ -15,6 +15,7 @@ from PyQt6.QtGui import QAction
 from src.hwmon_source import HwmonSensors
 from liquidctl_source import LiquidctlSensors
 
+
 class PollSourcesWorker(QObject):
     stopping = pyqtSignal()
 
@@ -30,7 +31,7 @@ class PollSourcesWorker(QObject):
     def start(self):
         self.polling_timer = QTimer()
         self.polling_timer.timeout.connect(self.update_sensors)
-        self.polling_timer.start(1000) # TODO: Make interval configurable
+        self.polling_timer.start(1000)  # TODO: Make interval configurable
 
     @pyqtSlot()
     def stop(self):
@@ -39,6 +40,7 @@ class PollSourcesWorker(QObject):
     def update_sensors(self):
         self.hwmon_source.update_sensors()
         self.liquidctl_source.update_sensors()
+
 
 class App(QMainWindow):
     def __init__(self):
@@ -115,7 +117,7 @@ class App(QMainWindow):
         help_menu.addAction(about_action)
 
     def _init_ui(self):
-        uic.loadUi('src/ui/mainwindow.ui', self)
+        uic.loadUi("src/ui/mainwindow.ui", self)
 
         self.setWindowTitle(self.title)
         self.init_sensors_tab()
@@ -144,6 +146,13 @@ class App(QMainWindow):
 
     def on_help_button_click(self):
         pass
+
+
+if hasattr(QtCore.Qt, "AA_EnableHighDpiScaling"):
+    QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+
+if hasattr(QtCore.Qt, "AA_UseHighDpiPixmaps"):
+    QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
 
 
 app = QApplication(sys.argv)
