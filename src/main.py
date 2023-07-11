@@ -6,7 +6,6 @@ from PyQt6.QtWidgets import (
     QApplication,
     QWidget,
     QVBoxLayout,
-    QTabWidget,
     QMainWindow,
     QHeaderView,
 )
