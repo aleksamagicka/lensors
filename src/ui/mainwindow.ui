@@ -15,19 +15,6 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout" rowstretch="0" columnstretch="0,0">
-    <item row="0" column="1">
-     <widget class="QGroupBox" name="info_box">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>1</horstretch>
-        <verstretch>1</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="title">
-       <string>Sensor info</string>
-      </property>
-     </widget>
-    </item>
     <item row="0" column="0">
      <widget class="QTabWidget" name="tab_widget">
       <property name="sizePolicy">
@@ -39,6 +26,74 @@
       <property name="currentIndex">
        <number>-1</number>
       </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QGroupBox" name="info_box">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>1</horstretch>
+        <verstretch>1</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="title">
+       <string>Sensor info</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <layout class="QGridLayout" name="gridLayout_2" rowstretch="1,1" columnstretch="1">
+         <item row="0" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QLabel" name="label">
+             <property name="text">
+              <string>Path:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="leHwmonPath">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="1" column="0">
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <item>
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>Internal name:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="leInternalName">
+             <property name="readOnly">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>378</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </widget>
     </item>
    </layout>
@@ -90,6 +145,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionResume_monitoring"/>
+   <addaction name="actionStopMonitoring"/>
   </widget>
   <action name="actionOptions">
    <property name="text">
@@ -111,17 +167,23 @@
     <string>hwmon + liquidctl</string>
    </property>
   </action>
-  <action name="actionFrom_scratch">
-   <property name="text">
-    <string>Rebuild tree</string>
-   </property>
-  </action>
   <action name="actionAbout">
    <property name="text">
     <string>About</string>
    </property>
   </action>
   <action name="actionResume_monitoring">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <selectedon>../../resources/icons/icons8-play-button-64.png</selectedon>
+    </iconset>
+   </property>
    <property name="text">
     <string>Resume monitoring</string>
    </property>
@@ -135,6 +197,25 @@
   <action name="actionRebuild_hwmon_tree">
    <property name="text">
     <string>Rebuild hwmon tree</string>
+   </property>
+  </action>
+  <action name="actionStopMonitoring">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <selectedon>../../resources/icons/icons8-stop-64.png</selectedon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Stop monitoring</string>
+   </property>
+   <property name="toolTip">
+    <string>Stop monitoring sensors.</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+R</string>
    </property>
   </action>
  </widget>
