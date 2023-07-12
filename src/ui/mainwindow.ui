@@ -46,7 +46,7 @@
    <addaction name="actionReload"/>
    <addaction name="separator"/>
    <addaction name="actionCharts"/>
-   <addaction name="actionRebuild_HWMON_tree"/>
+   <addaction name="actionRebuildHwmonTree"/>
    <addaction name="actionSettings"/>
   </widget>
   <action name="actionOptions">
@@ -147,7 +147,7 @@
     <string>Ctrl+G</string>
    </property>
   </action>
-  <action name="actionRebuild_HWMON_tree">
+  <action name="actionRebuildHwmonTree">
    <property name="icon">
     <iconset>
      <normaloff>../../resources/icons/icons8-under-construction-64.png</normaloff>../../resources/icons/icons8-under-construction-64.png</iconset>
