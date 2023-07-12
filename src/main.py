@@ -57,6 +57,8 @@ class App(QMainWindow):
         self.hwmon = None
         self.liquidctl = None
         self.liquidctl_tree = None
+        self.poll_worker = None
+        self.poll_worker_thread = None
 
         QtCore.QDir.addSearchPath("icons", "resources/icons/")
 
