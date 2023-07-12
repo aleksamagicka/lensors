@@ -20,7 +20,7 @@ class SensorsTree(ABC):
         tree_widget.setColumnCount(4)
         tree_widget.setHeaderLabels(["Name", "Value", "Min", "Max"])
         for device in self.devices:
-            device_item = QTreeWidgetItem([device.name])
+            device_item = DeviceTreeItem(device, [device.name])
             for sensor in device.sensors:
                 device_item.addChild(sensor.get_tree_widget_item())
             # Don't show empty devices
@@ -44,6 +44,17 @@ class Device(ABC):
         raise NotImplementedError()
 
 
+class DeviceTreeItem(QTreeWidgetItem):
+    def __init__(self, device, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.device = device
+
+
+class SensorTreeItem(QTreeWidgetItem):
+    def __init__(self, sensor, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.sensor = sensor
+
 class Sensor(ABC):
     class Type(Enum):
         Temp = 1
@@ -57,12 +68,14 @@ class Sensor(ABC):
     def __init__(self, label, internal_data):
         self.label = label.strip()
         self._internal_data = internal_data
+        self._values_over_time = list()
 
         self._value = 0
         self._min_value = sys.maxsize
         self._max_value = -sys.maxsize - 1
 
-        self._tree_item = QTreeWidgetItem(
+        self._tree_item = SensorTreeItem(
+            self,
             [
                 self.label,
                 str(self._value),
