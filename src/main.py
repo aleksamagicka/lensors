@@ -134,6 +134,7 @@ class App(QMainWindow):
         # Connect buttons
         self.actionStartMonitoring.triggered.connect(self.start_polling)
         self.actionStopMonitoring.triggered.connect(self.stop_polling)
+        self.actionReload.triggered.connect(self.oneshot_reload)
 
         self.show()
         self._center_window()
@@ -160,6 +161,10 @@ class App(QMainWindow):
         self.poll_worker.stop()
 
         self.show_permanent_status_message("Stopped monitoring.")
+
+    def oneshot_reload(self):
+        self.hwmon.update_sensors()
+        self.liquidctl.update_sensors()
 
     def closeEvent(self, a0: QtGui.QCloseEvent):
         # TODO: Sometimes gives an error
