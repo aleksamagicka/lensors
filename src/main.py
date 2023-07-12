@@ -13,8 +13,9 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtGui import QAction
 
-from src.hwmon_source import HwmonSensors
+from hwmon_source import HwmonSensors
 from liquidctl_source import LiquidctlSensors
+from sensors_tree import DeviceTreeItem, SensorTreeItem
 
 
 class PollSourcesWorker(QObject):
@@ -72,6 +73,13 @@ class App(QMainWindow):
     def show_permanent_status_message(self, text):
         self.status_label.setText(f"[{datetime.now().strftime('%H:%M:%S')}] {text}")
 
+    def hwmon_row_changed(self, item, column):
+        # TODO
+        if isinstance(item, SensorTreeItem):
+            pass
+        elif isinstance(item, DeviceTreeItem):
+            pass
+
     def init_sensors_tab(self):
         if self.hwmon is None:
             self.hwmon = HwmonSensors()
@@ -87,6 +95,7 @@ class App(QMainWindow):
         self.sensors_tree.header().setSectionResizeMode(
             QHeaderView.ResizeMode.ResizeToContents
         )
+        self.sensors_tree.itemPressed.connect(self.hwmon_row_changed)
         self.sensors_tree.header().setStretchLastSection(False)
 
         self.liquidctl_tree = self.liquidctl.get_tree_widget()
@@ -109,17 +118,6 @@ class App(QMainWindow):
         self.liquidctl_widget.setLayout(liquidctl_layout)
         self.tab_widget.addTab(self.liquidctl_widget, "Liquidctl")
 
-    def _init_menubar(self):
-        tools_menu = self.menuBar().addMenu("Tools")
-        button_action = QAction("Refresh", self)
-        button_action.triggered.connect(self.on_refresh_button_click)
-        tools_menu.addAction(button_action)
-
-        help_menu = self.menuBar().addMenu("Help")
-        about_action = QAction("About", self)
-        about_action.triggered.connect(self.on_help_button_click)
-        help_menu.addAction(about_action)
-
     def _init_ui(self):
         uic.loadUi("src/ui/mainwindow.ui", self)
 
@@ -133,10 +131,17 @@ class App(QMainWindow):
         self.status_label = QLabel()
         self.statusBar().addPermanentWidget(self.status_label)
 
+        # Connect buttons
+        self.actionStartMonitoring.triggered.connect(self.start_polling)
+        self.actionStopMonitoring.triggered.connect(self.stop_polling)
+
         self.show()
         self._center_window()
 
-        # Start polling sensor sources
+        self.init_polling()
+
+
+    def init_polling(self):
         self.poll_worker_thread = QThread()
         self.poll_worker = PollSourcesWorker(self.hwmon, self.liquidctl)
         self.poll_worker.moveToThread(self.poll_worker_thread)
@@ -145,6 +150,16 @@ class App(QMainWindow):
         self.poll_worker_thread.start()
 
         self.show_permanent_status_message("Started monitoring.")
+
+    def start_polling(self):
+        self.poll_worker.start()
+
+        self.show_permanent_status_message("Started monitoring.")
+
+    def stop_polling(self):
+        self.poll_worker.stop()
+
+        self.show_permanent_status_message("Stopped monitoring.")
 
     def closeEvent(self, a0: QtGui.QCloseEvent):
         # TODO: Sometimes gives an error
