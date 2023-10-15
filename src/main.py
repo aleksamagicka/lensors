@@ -112,7 +112,7 @@ class App(QMainWindow):
         sensors_layout.addWidget(self.sensors_tree)
         self.sensors_widget = QWidget()
         self.sensors_widget.setLayout(sensors_layout)
-        self.tab_widget.addTab(self.sensors_widget, "Sensors")
+        self.tab_widget.addTab(self.sensors_widget, "HWMON")
 
         liquidctl_layout = QVBoxLayout()
         liquidctl_layout.addWidget(self.liquidctl_tree)
