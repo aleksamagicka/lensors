@@ -55,6 +55,7 @@ class SensorTreeItem(QTreeWidgetItem):
         super().__init__(*args, **kwargs)
         self.sensor = sensor
 
+
 class Sensor(ABC):
     class Type(Enum):
         Temp = 1
@@ -81,7 +82,7 @@ class Sensor(ABC):
                 str(self._value),
                 str(self._min_value),
                 str(self._max_value),
-            ]
+            ],
         )
 
         self._tree_item.setIcon(0, QtGui.QIcon(f"icons:{self.icon}"))

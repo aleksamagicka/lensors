@@ -53,7 +53,7 @@ class HwmonSensors(SensorsTree):
 
             @cached_property
             def type(self):
-                internal_name = self._internal_data["fs_name"].split('_input')[0]
+                internal_name = self._internal_data["fs_name"].split("_input")[0]
 
                 if "temp" in internal_name:
                     return self.Type.Temp
@@ -113,7 +113,9 @@ class HwmonSensors(SensorsTree):
 
             for sensor in os.listdir(subdir_path):
                 sensor_parts = sensor.split("_")
-                sensor_label_path = os.path.join(subdir_path, sensor_parts[0] + "_label")
+                sensor_label_path = os.path.join(
+                    subdir_path, sensor_parts[0] + "_label"
+                )
                 sensor_label = sensor_parts[0]
                 if os.path.exists(sensor_label_path):
                     with open(sensor_label_path) as f:
