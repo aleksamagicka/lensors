@@ -10,24 +10,34 @@ from PyQt6.QtWidgets import QTreeWidgetItem, QTreeWidget
 class SensorsTree(ABC):
     def __init__(self):
         self.devices = list()
+        self.tree_widget = QTreeWidget()
 
     def update_sensors(self):
         for device in self.devices:
-            device.update_sensors()
+            if not device.faulty:
+                device.update_sensors()
+            else:
+                # Remove the faulty one
+                self.tree_widget.takeTopLevelItem(
+                    self.tree_widget.indexOfTopLevelItem(device.tree_item)
+                )
+                self.devices.remove(device)
+                print(f"removed the faulty device: {device.name}")
 
     def get_tree_widget(self):
-        tree_widget = QTreeWidget()
-        tree_widget.setColumnCount(4)
-        tree_widget.setHeaderLabels(["Name", "Value", "Min", "Max"])
+        self.tree_widget.setColumnCount(4)
+        self.tree_widget.setHeaderLabels(["Name", "Value", "Min", "Max"])
         for device in self.devices:
+            if device.faulty:
+                continue
             device_item = DeviceTreeItem(device, [device.name])
             for sensor in device.sensors:
                 device_item.addChild(sensor.get_tree_widget_item())
             # Don't show empty devices
             if device_item.childCount() != 0:
-                tree_widget.addTopLevelItem(device_item)
+                self.tree_widget.addTopLevelItem(device_item)
 
-        return tree_widget
+        return self.tree_widget
 
     @abstractmethod
     def read(self):
@@ -38,6 +48,9 @@ class Device(ABC):
     def __init__(self, name):
         self.name = name
         self.sensors = list()
+        self.faulty = False
+
+        self.tree_item = None
 
     @abstractmethod
     def update_sensors(self):
@@ -48,6 +61,7 @@ class DeviceTreeItem(QTreeWidgetItem):
     def __init__(self, device, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.device = device
+        self.device.tree_item = self
 
 
 class SensorTreeItem(QTreeWidgetItem):

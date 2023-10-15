@@ -21,14 +21,18 @@ class LiquidctlSensors(SensorsTree):
             self._device.disconnect()
 
         def update_sensors(self):
-            for key, value, unit in self._device.get_status():
-                if key not in self._sensor_map:
-                    new_sensor = self.LiquidctlSensor(key, {"unit": unit})
-                    new_sensor.update_value(value)
-                    self._sensor_map[key] = new_sensor
-                    self.sensors.append(new_sensor)
-                else:
-                    self._sensor_map[key].update_value(value)
+            try:
+                for key, value, unit in self._device.get_status():
+                    if key not in self._sensor_map:
+                        new_sensor = self.LiquidctlSensor(key, {"unit": unit})
+                        new_sensor.update_value(value)
+                        self._sensor_map[key] = new_sensor
+                        self.sensors.append(new_sensor)
+                    else:
+                        self._sensor_map[key].update_value(value)
+            except:
+                print(f"couldn't read {self.name} from liquidctl, marking as faulty")
+                self.faulty = True
 
         class LiquidctlSensor(Sensor):
             def __init__(self, label, internal_data):

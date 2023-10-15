@@ -17,8 +17,14 @@ class HwmonSensors(SensorsTree):
             super().__init__(name)
 
         def update_sensors(self):
-            for sensor in self.sensors:
-                sensor.update_value()
+            try:
+                for sensor in self.sensors:
+                    sensor.update_value()
+            except:
+                print(
+                    f"couldn't read {self.name}/{sensor.label}, marking device as faulty"
+                )
+                self.faulty = True
 
         class HwmonSensor(Sensor):
             def __init__(self, label, internal_data):
