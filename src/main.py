@@ -143,7 +143,6 @@ class App(QMainWindow):
 
         self.init_polling()
 
-
     def init_polling(self):
         self.poll_worker_thread = QThread()
         self.poll_worker = PollSourcesWorker(self.hwmon, self.liquidctl)
@@ -173,11 +172,6 @@ class App(QMainWindow):
         self.poll_worker.stopping.emit()
         self.poll_worker_thread.quit()
         self.poll_worker_thread.wait()
-
-    def on_refresh_button_click(self):
-        # TODO
-        self.hwmon.update_sensors()
-        self.liquidctl.update_sensors()
 
     def on_help_button_click(self):
         pass
