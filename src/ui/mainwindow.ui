@@ -45,7 +45,7 @@
    <addaction name="actionStopMonitoring"/>
    <addaction name="actionReload"/>
    <addaction name="separator"/>
-   <addaction name="actionCharts"/>
+   <addaction name="actionGraphing"/>
    <addaction name="actionRebuildHwmonTree"/>
    <addaction name="actionSettings"/>
   </widget>
@@ -132,16 +132,16 @@
     <string>Reload sensor values.</string>
    </property>
   </action>
-  <action name="actionCharts">
+  <action name="actionGraphing">
    <property name="icon">
     <iconset>
      <normaloff>../../resources/icons/icons8-combo-chart-64.png</normaloff>../../resources/icons/icons8-combo-chart-64.png</iconset>
    </property>
    <property name="text">
-    <string>Charts</string>
+    <string>Graphs</string>
    </property>
    <property name="toolTip">
-    <string>Draw charts.</string>
+    <string>Draw graphs.</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+G</string>
