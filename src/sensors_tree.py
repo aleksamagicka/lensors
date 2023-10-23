@@ -86,6 +86,9 @@ class Sensor(ABC):
         self.label = label.strip()
         self._internal_data = internal_data
         self._device = device
+
+        # Plotting
+        self._plot_line = None
         self._values_over_time = dict()
 
         self._value = 0

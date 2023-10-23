@@ -15,6 +15,7 @@ from PyQt5.QtWidgets import (
 from hwmon_source import HwmonSensors
 from liquidctl_source import LiquidctlSensors
 from sensors_tree import DeviceTreeItem, SensorTreeItem
+from src.graphing import GraphingWindow
 
 
 class PollSourcesWorker(QObject):
@@ -58,6 +59,7 @@ class App(QMainWindow):
         self.liquidctl_tree = None
         self.poll_worker = None
         self.poll_worker_thread = None
+        self.graphing_window = GraphingWindow()
 
         QtCore.QDir.addSearchPath("icons", "resources/icons/")
 
@@ -74,9 +76,19 @@ class App(QMainWindow):
     def show_permanent_status_message(self, text):
         self.status_label.setText(f"[{datetime.now().strftime('%H:%M:%S')}] {text}")
 
-    def hwmon_row_changed(self, item, column):
+    def hwmon_row_changed(self, item: SensorTreeItem, column):
+        sensor = item.sensor
+
         if item.checkState(column) == Qt.CheckState.Checked:
-            print(f"{item} was checked")
+            print(f"{item} is now checked")
+
+            sensor._plot_line = self.graphing_window.graphWidget.plot(
+                [5, 6, 7], [8, 9, 10]
+            )
+        else:
+            if sensor._plot_line:
+                self.graphing_window.graphWidget.removeItem(sensor._plot_line)
+
         # else:
         # print(f"{item} was unchecked")
 
@@ -135,6 +147,7 @@ class App(QMainWindow):
         self.actionStartMonitoring.triggered.connect(self.start_polling)
         self.actionStopMonitoring.triggered.connect(self.stop_polling)
         self.actionReload.triggered.connect(self.oneshot_reload)
+        self.actionGraphing.triggered.connect(self.show_graphing)
 
         self.show()
         self._center_window()
@@ -164,6 +177,12 @@ class App(QMainWindow):
     def oneshot_reload(self):
         self.hwmon.update_sensors()
         self.liquidctl.update_sensors()
+
+    def show_graphing(self):
+        if self.graphing_window.isVisible():
+            self.graphing_window.hide()
+        else:
+            self.graphing_window.show()
 
     def closeEvent(self, a0: QtGui.QCloseEvent):
         # TODO: Sometimes gives an error
