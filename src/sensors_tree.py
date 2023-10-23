@@ -4,6 +4,7 @@ from enum import Enum
 from functools import cached_property
 
 from PyQt6 import QtGui
+from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QTreeWidgetItem, QTreeWidget
 
 
@@ -25,8 +26,8 @@ class SensorsTree(ABC):
                 print(f"removed the faulty device: {device.name}")
 
     def get_tree_widget(self):
-        self.tree_widget.setColumnCount(4)
-        self.tree_widget.setHeaderLabels(["Name", "Value", "Min", "Max"])
+        self.tree_widget.setColumnCount(5)
+        self.tree_widget.setHeaderLabels(["Name", "Value", "Min", "Max", "Graph?"])
         for device in self.devices:
             if device.faulty:
                 continue
@@ -68,6 +69,7 @@ class SensorTreeItem(QTreeWidgetItem):
     def __init__(self, sensor, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.sensor = sensor
+        self.setCheckState(4, Qt.CheckState.Unchecked)
 
 
 class Sensor(ABC):
@@ -83,7 +85,7 @@ class Sensor(ABC):
     def __init__(self, label, internal_data):
         self.label = label.strip()
         self._internal_data = internal_data
-        self._values_over_time = list()
+        self._values_over_time = dict()
 
         self._value = 0
         self._min_value = sys.maxsize
@@ -96,6 +98,7 @@ class Sensor(ABC):
                 str(self._value),
                 str(self._min_value),
                 str(self._max_value),
+                str(),
             ],
         )
 
