@@ -82,9 +82,10 @@ class Sensor(ABC):
         Intrusion = 6
         Flow = 7
 
-    def __init__(self, label, internal_data):
+    def __init__(self, label, internal_data, device):
         self.label = label.strip()
         self._internal_data = internal_data
+        self._device = device
         self._values_over_time = dict()
 
         self._value = 0

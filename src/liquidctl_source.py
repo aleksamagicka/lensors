@@ -24,7 +24,9 @@ class LiquidctlSensors(SensorsTree):
             try:
                 for key, value, unit in self._device.get_status():
                     if key not in self._sensor_map:
-                        new_sensor = self.LiquidctlSensor(key, {"unit": unit})
+                        new_sensor = self.LiquidctlSensor(
+                            key, {"unit": unit}, self._device
+                        )
                         new_sensor.update_value(value)
                         self._sensor_map[key] = new_sensor
                         self.sensors.append(new_sensor)
@@ -35,8 +37,8 @@ class LiquidctlSensors(SensorsTree):
                 self.faulty = True
 
         class LiquidctlSensor(Sensor):
-            def __init__(self, label, internal_data):
-                super().__init__(label, internal_data)
+            def __init__(self, label, internal_data, liquidctl_device):
+                super().__init__(label, internal_data, liquidctl_device)
 
             def update_value(self, new_value):
                 if type(new_value) is int or type(new_value) is float:

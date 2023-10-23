@@ -28,8 +28,8 @@ class HwmonSensors(SensorsTree):
                 self.faulty = True
 
         class HwmonSensor(Sensor):
-            def __init__(self, label, internal_data):
-                super().__init__(label, internal_data)
+            def __init__(self, label, internal_data, h_device):
+                super().__init__(label, internal_data, h_device)
 
             def update_value(self):
                 with open(self._internal_data["path"]) as f:
@@ -144,7 +144,7 @@ class HwmonSensors(SensorsTree):
                                 }
 
                                 h_sensor = self.HwmonDevice.HwmonSensor(
-                                    sensor_label, internal_data
+                                    sensor_label, internal_data, h_device
                                 )
                                 h_sensor.update_value()
                                 h_device.sensors.append(h_sensor)
