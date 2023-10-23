@@ -2,7 +2,7 @@ from functools import cached_property
 
 from liquidctl import find_liquidctl_devices
 
-from PyQt6 import QtCore
+from PyQt5 import QtCore
 
 from sensors_tree import SensorsTree, Device, Sensor
 

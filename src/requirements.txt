@@ -1,4 +1,4 @@
-PyQt6
+PyQt5
 black
 git+https://github.com/liquidctl/liquidctl@main#egg=liquidctl
 pyqtgraph

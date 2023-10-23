@@ -1,9 +1,9 @@
 import sys
 from datetime import datetime
 
-from PyQt6 import QtCore, QtGui, uic
-from PyQt6.QtCore import QTimer, QObject, QThread, pyqtSignal, pyqtSlot
-from PyQt6.QtWidgets import (
+from PyQt5 import QtCore, QtGui, uic
+from PyQt5.QtCore import QTimer, QObject, QThread, pyqtSignal, pyqtSlot, Qt
+from PyQt5.QtWidgets import (
     QApplication,
     QWidget,
     QVBoxLayout,
@@ -11,7 +11,6 @@ from PyQt6.QtWidgets import (
     QHeaderView,
     QLabel,
 )
-from PyQt6.QtGui import QAction
 
 from hwmon_source import HwmonSensors
 from liquidctl_source import LiquidctlSensors
@@ -76,11 +75,10 @@ class App(QMainWindow):
         self.status_label.setText(f"[{datetime.now().strftime('%H:%M:%S')}] {text}")
 
     def hwmon_row_changed(self, item, column):
-        # TODO
-        if isinstance(item, SensorTreeItem):
-            pass
-        elif isinstance(item, DeviceTreeItem):
-            pass
+        if item.checkState(column) == Qt.CheckState.Checked:
+            print(f"{item} was checked")
+        # else:
+        # print(f"{item} was unchecked")
 
     def init_sensors_tab(self):
         if self.hwmon is None:
@@ -97,7 +95,7 @@ class App(QMainWindow):
         self.sensors_tree.header().setSectionResizeMode(
             QHeaderView.ResizeMode.ResizeToContents
         )
-        self.sensors_tree.itemPressed.connect(self.hwmon_row_changed)
+        self.sensors_tree.itemChanged.connect(self.hwmon_row_changed)
         self.sensors_tree.header().setStretchLastSection(False)
 
         self.liquidctl_tree = self.liquidctl.get_tree_widget()

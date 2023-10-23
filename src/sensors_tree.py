@@ -3,9 +3,9 @@ from abc import abstractmethod, ABC
 from enum import Enum
 from functools import cached_property
 
-from PyQt6 import QtGui
-from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QTreeWidgetItem, QTreeWidget
+from PyQt5 import QtGui
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QTreeWidgetItem, QTreeWidget
 
 
 class SensorsTree(ABC):

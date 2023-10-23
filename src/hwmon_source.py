@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 from functools import cached_property
 
-from PyQt6 import QtCore
+from PyQt5 import QtCore
 
 from sensors_tree import SensorsTree, Device, Sensor
 
