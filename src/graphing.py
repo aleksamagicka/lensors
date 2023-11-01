@@ -10,6 +10,7 @@ class GraphingWindow(QWidget):
         self.setWindowTitle("Lensors - graphing")
 
         self.graphWidget = pg.PlotWidget(axisItems={"bottom": pg.DateAxisItem()})
+        self.graphWidget.addLegend()
         self.graphWidget.setBackground("w")
 
         self.layout.addWidget(self.graphWidget)

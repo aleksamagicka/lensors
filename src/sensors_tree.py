@@ -88,7 +88,7 @@ class Sensor(ABC):
         self._device = device
 
         # Plotting
-        self._plot_line = None
+        self.plot_data_item = None
         self._values_over_time = dict()
 
         self._value = 0

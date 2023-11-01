@@ -80,20 +80,22 @@ class App(QMainWindow):
         sensor = item.sensor
 
         if item.checkState(4) == Qt.CheckState.Checked:
-            if sensor._plot_line is None:
-                sensor._plot_line = self.graphing_window.graphWidget.plot(
+            if sensor.plot_data_item is None:
+                sensor.plot_data_item = self.graphing_window.graphWidget.plot(
                     list(sensor._values_over_time.keys()),
                     list(sensor._values_over_time.values()),
+                    pen="r",
+                    name=f"{sensor._device.name}/{sensor.label}",
                 )
             else:
                 # Update data
-                sensor._plot_line.setData(
+                sensor.plot_data_item.setData(
                     list(sensor._values_over_time.keys()),
                     list(sensor._values_over_time.values()),
                 )
         else:
-            if sensor._plot_line:
-                self.graphing_window.graphWidget.removeItem(sensor._plot_line)
+            if sensor.plot_data_item:
+                self.graphing_window.graphWidget.removeItem(sensor.plot_data_item)
 
     def init_sensors_tab(self):
         if self.hwmon is None:
