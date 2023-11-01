@@ -1,4 +1,5 @@
 import os
+import time
 from datetime import datetime
 from functools import cached_property
 
@@ -39,12 +40,12 @@ class HwmonSensors(SensorsTree):
                         self._min_value = min(self._value, self._min_value)
                         self._max_value = max(self._value, self._max_value)
 
-                        self._values_over_time[datetime.now()] = self._value
+                        self._values_over_time[time.time()] = self._value
                     else:
                         self._min_value = "N/A"
                         self._max_value = "N/A"
 
-                        self._values_over_time[datetime.now()] = 0
+                        self._values_over_time[time.time()] = 0
 
                 self._tree_item.setData(
                     1,
