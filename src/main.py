@@ -1,6 +1,8 @@
+import random
 import sys
 from datetime import datetime
 
+import pyqtgraph
 from PyQt5 import QtCore, QtGui, uic
 from PyQt5.QtCore import QTimer, QObject, QThread, pyqtSignal, pyqtSlot, Qt
 from PyQt5.QtWidgets import (
@@ -84,9 +86,19 @@ class App(QMainWindow):
                 sensor.plot_data_item = self.graphing_window.graphWidget.plot(
                     list(sensor._values_over_time.keys()),
                     list(sensor._values_over_time.values()),
-                    pen="r",
+                    pen=pyqtgraph.mkPen(
+                        color=(
+                            random.randint(0, 255),
+                            random.randint(0, 255),
+                            random.randint(0, 255),
+                        ),
+                        width=3,
+                    ),
                     name=f"{sensor._device.name}/{sensor.label}",
                 )
+
+                # TODO: Based on settings
+                self.graphing_window.show()
             else:
                 # Update data
                 sensor.plot_data_item.setData(
