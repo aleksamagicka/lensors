@@ -1,6 +1,8 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
 import pyqtgraph as pg
 
+pg.setConfigOptions(antialias=True)
+
 
 class GraphingWindow(QWidget):
     def __init__(self):
