@@ -85,6 +85,12 @@ class App(QMainWindow):
                     list(sensor._values_over_time.keys()),
                     list(sensor._values_over_time.values()),
                 )
+            else:
+                # Update data
+                sensor._plot_line.setData(
+                    list(sensor._values_over_time.keys()),
+                    list(sensor._values_over_time.values()),
+                )
         else:
             if sensor._plot_line:
                 self.graphing_window.graphWidget.removeItem(sensor._plot_line)
