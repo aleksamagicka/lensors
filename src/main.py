@@ -45,6 +45,8 @@ class PollSourcesWorker(QObject):
         self.hwmon_source.update_sensors()
         self.liquidctl_source.update_sensors()
 
+        # TODO: Settings: add dummy entries to plot if not change? Either: do nothing, continue same value or set 0
+
 
 class App(QMainWindow):
     def __init__(self):
@@ -97,17 +99,24 @@ class App(QMainWindow):
                     name=f"{sensor._device.name if type(sensor._device) is HwmonSensors.HwmonDevice else sensor._device.description}/{sensor.label}",
                 )
 
+                sensor.is_plot_shown = True
+
                 # TODO: Based on settings
                 self.graphing_window.show()
             else:
-                # Update data
-                sensor.plot_data_item.setData(
-                    list(sensor._values_over_time.keys()),
-                    list(sensor._values_over_time.values()),
-                )
+                # Is widget plotted?
+                if sensor.is_plot_shown:
+                    sensor.plot_data_item.setData(
+                        list(sensor._values_over_time.keys()),
+                        list(sensor._values_over_time.values()),
+                    )
+                else:
+                    sensor.is_plot_shown = True
+                    self.graphing_window.graphWidget.addItem(sensor.plot_data_item)
         else:
             if sensor.plot_data_item:
                 self.graphing_window.graphWidget.removeItem(sensor.plot_data_item)
+                sensor.is_plot_shown = False
 
     def init_sensors_tab(self):
         if self.hwmon is None:
