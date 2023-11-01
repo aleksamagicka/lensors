@@ -79,18 +79,15 @@ class App(QMainWindow):
     def hwmon_row_changed(self, item: SensorTreeItem, column):
         sensor = item.sensor
 
-        if item.checkState(column) == Qt.CheckState.Checked:
-            print(f"{item} is now checked")
-
-            sensor._plot_line = self.graphing_window.graphWidget.plot(
-                [5, 6, 7], [8, 9, 10]
-            )
+        if item.checkState(4) == Qt.CheckState.Checked:
+            if sensor._plot_line is None:
+                sensor._plot_line = self.graphing_window.graphWidget.plot(
+                    list(sensor._values_over_time.keys()),
+                    list(sensor._values_over_time.values()),
+                )
         else:
             if sensor._plot_line:
                 self.graphing_window.graphWidget.removeItem(sensor._plot_line)
-
-        # else:
-        # print(f"{item} was unchecked")
 
     def init_sensors_tab(self):
         if self.hwmon is None:
