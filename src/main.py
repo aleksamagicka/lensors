@@ -187,6 +187,8 @@ class App(QMainWindow):
         self.poll_worker_thread.quit()
         self.poll_worker_thread.wait()
 
+        self.graphing_window.close()
+
     def on_help_button_click(self):
         pass
 
