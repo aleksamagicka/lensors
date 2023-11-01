@@ -78,7 +78,7 @@ class App(QMainWindow):
     def show_permanent_status_message(self, text):
         self.status_label.setText(f"[{datetime.now().strftime('%H:%M:%S')}] {text}")
 
-    def hwmon_row_changed(self, item: SensorTreeItem, column):
+    def sensor_row_changed(self, item: SensorTreeItem, column):
         sensor = item.sensor
 
         if item.checkState(4) == Qt.CheckState.Checked:
@@ -94,7 +94,7 @@ class App(QMainWindow):
                         ),
                         width=3,
                     ),
-                    name=f"{sensor._device.name}/{sensor.label}",
+                    name=f"{sensor._device.name if type(sensor._device) is HwmonSensors.HwmonDevice else sensor._device.description}/{sensor.label}",
                 )
 
                 # TODO: Based on settings
@@ -124,7 +124,7 @@ class App(QMainWindow):
         self.sensors_tree.header().setSectionResizeMode(
             QHeaderView.ResizeMode.ResizeToContents
         )
-        self.sensors_tree.itemChanged.connect(self.hwmon_row_changed)
+        self.sensors_tree.itemChanged.connect(self.sensor_row_changed)
         self.sensors_tree.header().setStretchLastSection(False)
 
         self.liquidctl_tree = self.liquidctl.get_tree_widget()
@@ -133,6 +133,7 @@ class App(QMainWindow):
         self.liquidctl_tree.header().setSectionResizeMode(
             QHeaderView.ResizeMode.ResizeToContents
         )
+        self.liquidctl_tree.itemChanged.connect(self.sensor_row_changed)
         self.liquidctl_tree.header().setStretchLastSection(False)
 
         sensors_layout = QVBoxLayout()

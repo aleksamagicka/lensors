@@ -1,3 +1,4 @@
+import time
 from functools import cached_property
 
 from liquidctl import find_liquidctl_devices
@@ -45,9 +46,13 @@ class LiquidctlSensors(SensorsTree):
                     self._value = round(new_value, 2)
                     self._min_value = min(self._value, self._min_value)
                     self._max_value = max(self._value, self._max_value)
+
+                    self._values_over_time[time.time()] = self._value
                 else:
                     self._min_value = "N/A"
                     self._max_value = "N/A"
+
+                    self._values_over_time[time.time()] = 0
 
                 self._tree_item.setData(
                     1,
