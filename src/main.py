@@ -1,9 +1,11 @@
+import random
 import sys
 from datetime import datetime
 
-from PyQt6 import QtCore, QtGui, uic
-from PyQt6.QtCore import QTimer, QObject, QThread, pyqtSignal, pyqtSlot
-from PyQt6.QtWidgets import (
+import pyqtgraph
+from PyQt5 import QtCore, QtGui, uic
+from PyQt5.QtCore import QTimer, QObject, QThread, pyqtSignal, pyqtSlot, Qt
+from PyQt5.QtWidgets import (
     QApplication,
     QWidget,
     QVBoxLayout,
@@ -11,11 +13,11 @@ from PyQt6.QtWidgets import (
     QHeaderView,
     QLabel,
 )
-from PyQt6.QtGui import QAction
 
 from hwmon_source import HwmonSensors
 from liquidctl_source import LiquidctlSensors
 from sensors_tree import DeviceTreeItem, SensorTreeItem
+from src.graphing import GraphingWindow
 
 
 class PollSourcesWorker(QObject):
@@ -43,6 +45,8 @@ class PollSourcesWorker(QObject):
         self.hwmon_source.update_sensors()
         self.liquidctl_source.update_sensors()
 
+        # TODO: Settings: add dummy entries to plot if not change? Either: do nothing, continue same value or set 0
+
 
 class App(QMainWindow):
     def __init__(self):
@@ -59,6 +63,7 @@ class App(QMainWindow):
         self.liquidctl_tree = None
         self.poll_worker = None
         self.poll_worker_thread = None
+        self.graphing_window = GraphingWindow()
 
         QtCore.QDir.addSearchPath("icons", "resources/icons/")
 
@@ -75,12 +80,43 @@ class App(QMainWindow):
     def show_permanent_status_message(self, text):
         self.status_label.setText(f"[{datetime.now().strftime('%H:%M:%S')}] {text}")
 
-    def hwmon_row_changed(self, item, column):
-        # TODO
-        if isinstance(item, SensorTreeItem):
-            pass
-        elif isinstance(item, DeviceTreeItem):
-            pass
+    def sensor_row_changed(self, item: SensorTreeItem, column):
+        sensor = item.sensor
+
+        if item.checkState(4) == Qt.CheckState.Checked:
+            if sensor.plot_data_item is None:
+                sensor.plot_data_item = self.graphing_window.graphWidget.plot(
+                    list(sensor._values_over_time.keys()),
+                    list(sensor._values_over_time.values()),
+                    pen=pyqtgraph.mkPen(
+                        color=(
+                            random.randint(0, 255),
+                            random.randint(0, 255),
+                            random.randint(0, 255),
+                        ),
+                        width=3,
+                    ),
+                    name=f"{sensor._device.name if type(sensor._device) is HwmonSensors.HwmonDevice else sensor._device.description}/{sensor.label}",
+                )
+
+                sensor.is_plot_shown = True
+
+                # TODO: Based on settings
+                self.graphing_window.show()
+            else:
+                # Is widget plotted?
+                if sensor.is_plot_shown:
+                    sensor.plot_data_item.setData(
+                        list(sensor._values_over_time.keys()),
+                        list(sensor._values_over_time.values()),
+                    )
+                else:
+                    sensor.is_plot_shown = True
+                    self.graphing_window.graphWidget.addItem(sensor.plot_data_item)
+        else:
+            if sensor.plot_data_item:
+                self.graphing_window.graphWidget.removeItem(sensor.plot_data_item)
+                sensor.is_plot_shown = False
 
     def init_sensors_tab(self):
         if self.hwmon is None:
@@ -97,7 +133,7 @@ class App(QMainWindow):
         self.sensors_tree.header().setSectionResizeMode(
             QHeaderView.ResizeMode.ResizeToContents
         )
-        self.sensors_tree.itemPressed.connect(self.hwmon_row_changed)
+        self.sensors_tree.itemChanged.connect(self.sensor_row_changed)
         self.sensors_tree.header().setStretchLastSection(False)
 
         self.liquidctl_tree = self.liquidctl.get_tree_widget()
@@ -106,6 +142,7 @@ class App(QMainWindow):
         self.liquidctl_tree.header().setSectionResizeMode(
             QHeaderView.ResizeMode.ResizeToContents
         )
+        self.liquidctl_tree.itemChanged.connect(self.sensor_row_changed)
         self.liquidctl_tree.header().setStretchLastSection(False)
 
         sensors_layout = QVBoxLayout()
@@ -137,6 +174,7 @@ class App(QMainWindow):
         self.actionStartMonitoring.triggered.connect(self.start_polling)
         self.actionStopMonitoring.triggered.connect(self.stop_polling)
         self.actionReload.triggered.connect(self.oneshot_reload)
+        self.actionGraphing.triggered.connect(self.show_graphing)
 
         self.show()
         self._center_window()
@@ -167,11 +205,19 @@ class App(QMainWindow):
         self.hwmon.update_sensors()
         self.liquidctl.update_sensors()
 
+    def show_graphing(self):
+        if self.graphing_window.isVisible():
+            self.graphing_window.hide()
+        else:
+            self.graphing_window.show()
+
     def closeEvent(self, a0: QtGui.QCloseEvent):
         # TODO: Sometimes gives an error
         self.poll_worker.stopping.emit()
         self.poll_worker_thread.quit()
         self.poll_worker_thread.wait()
+
+        self.graphing_window.close()
 
     def on_help_button_click(self):
         pass

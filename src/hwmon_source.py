@@ -1,7 +1,9 @@
 import os
+import time
+from datetime import datetime
 from functools import cached_property
 
-from PyQt6 import QtCore
+from PyQt5 import QtCore
 
 from sensors_tree import SensorsTree, Device, Sensor
 
@@ -27,8 +29,8 @@ class HwmonSensors(SensorsTree):
                 self.faulty = True
 
         class HwmonSensor(Sensor):
-            def __init__(self, label, internal_data):
-                super().__init__(label, internal_data)
+            def __init__(self, label, internal_data, h_device):
+                super().__init__(label, internal_data, h_device)
 
             def update_value(self):
                 with open(self._internal_data["path"]) as f:
@@ -37,9 +39,13 @@ class HwmonSensors(SensorsTree):
                         self._value = int(self._value)
                         self._min_value = min(self._value, self._min_value)
                         self._max_value = max(self._value, self._max_value)
+
+                        self._values_over_time[time.time()] = self._value
                     else:
                         self._min_value = "N/A"
                         self._max_value = "N/A"
+
+                        self._values_over_time[time.time()] = 0
 
                 self._tree_item.setData(
                     1,
@@ -139,7 +145,7 @@ class HwmonSensors(SensorsTree):
                                 }
 
                                 h_sensor = self.HwmonDevice.HwmonSensor(
-                                    sensor_label, internal_data
+                                    sensor_label, internal_data, h_device
                                 )
                                 h_sensor.update_value()
                                 h_device.sensors.append(h_sensor)

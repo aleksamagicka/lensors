@@ -1,8 +1,9 @@
+import time
 from functools import cached_property
 
 from liquidctl import find_liquidctl_devices
 
-from PyQt6 import QtCore
+from PyQt5 import QtCore
 
 from sensors_tree import SensorsTree, Device, Sensor
 
@@ -24,7 +25,9 @@ class LiquidctlSensors(SensorsTree):
             try:
                 for key, value, unit in self._device.get_status():
                     if key not in self._sensor_map:
-                        new_sensor = self.LiquidctlSensor(key, {"unit": unit})
+                        new_sensor = self.LiquidctlSensor(
+                            key, {"unit": unit}, self._device
+                        )
                         new_sensor.update_value(value)
                         self._sensor_map[key] = new_sensor
                         self.sensors.append(new_sensor)
@@ -35,17 +38,21 @@ class LiquidctlSensors(SensorsTree):
                 self.faulty = True
 
         class LiquidctlSensor(Sensor):
-            def __init__(self, label, internal_data):
-                super().__init__(label, internal_data)
+            def __init__(self, label, internal_data, liquidctl_device):
+                super().__init__(label, internal_data, liquidctl_device)
 
             def update_value(self, new_value):
                 if type(new_value) is int or type(new_value) is float:
                     self._value = round(new_value, 2)
                     self._min_value = min(self._value, self._min_value)
                     self._max_value = max(self._value, self._max_value)
+
+                    self._values_over_time[time.time()] = self._value
                 else:
                     self._min_value = "N/A"
                     self._max_value = "N/A"
+
+                    self._values_over_time[time.time()] = 0
 
                 self._tree_item.setData(
                     1,
